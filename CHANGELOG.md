@@ -4,6 +4,12 @@ All notable changes to `unreal-rc` are documented here.
 
 ## [Unreleased]
 
+## [0.5.5] - 2026-10-16
+
+### Fixed
+
+- Object calls keep out-parameters (e.g. `OutRowNames`, `OutColumnNames`) beside `ReturnValue` instead of dropping them. The response schema now declares unknown keys, so this no longer depends on the `onExcessProperty: "preserve"` parse option, which stable Effect 4 no longer supports. Affects `call` and `callReturn` on both the Promise and Effect clients.
+
 ## [0.5.4] - 2026-09-09
 
 ### Fixed
