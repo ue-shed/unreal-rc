@@ -904,9 +904,7 @@ export class UnrealRC {
           );
         }
         const decodeInput = response.body ?? {};
-        return Schema.decodeUnknownEffect(responseSchema)(decodeInput, {
-          onExcessProperty: "preserve",
-        }).pipe(
+        return Schema.decodeUnknownEffect(responseSchema)(decodeInput).pipe(
           Effect.map(
             (decoded) =>
               ({
