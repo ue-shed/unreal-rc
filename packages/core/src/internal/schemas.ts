@@ -19,9 +19,14 @@ export const ObjectCallRequestSchema = Schema.Struct({
   generateTransaction: Schema.optional(Schema.Boolean),
 });
 
-export const ObjectCallResponseSchema = Schema.Struct({
-  ReturnValue: Schema.optional(Schema.Unknown),
-});
+// Unreal returns out-parameters (e.g. `OutRowNames`) beside `ReturnValue`, so
+// unknown keys must survive decoding.
+export const ObjectCallResponseSchema = Schema.StructWithRest(
+  Schema.Struct({
+    ReturnValue: Schema.optional(Schema.Unknown),
+  }),
+  [Schema.Record(Schema.String, Schema.Unknown)],
+);
 
 // ── Object Property ────────────────────────────────────────────────────
 

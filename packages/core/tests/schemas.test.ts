@@ -124,6 +124,29 @@ describe("ObjectCallResponseSchema", () => {
     });
     expect(result.ReturnValue).toEqual({ X: 1, Y: 2, Z: 3 });
   });
+
+  test("keeps out-parameters without a ReturnValue", () => {
+    const result = decode(ObjectCallResponseSchema)({
+      OutColumnNames: ["IntValue", "FloatValue"],
+    });
+    expect(result).toEqual({ OutColumnNames: ["IntValue", "FloatValue"] });
+  });
+
+  test("keeps out-parameters beside ReturnValue", () => {
+    const result = decode(ObjectCallResponseSchema)({
+      ReturnValue: true,
+      OutRowNames: ["Row1", "Row2"],
+    });
+    expect(result).toEqual({ ReturnValue: true, OutRowNames: ["Row1", "Row2"] });
+  });
+
+  test("keeps out-parameters when excess properties are ignored", () => {
+    const result = decode(ObjectCallResponseSchema)(
+      { ReturnValue: true, OutRowNames: ["Row1"] },
+      { onExcessProperty: "ignore" },
+    );
+    expect(result).toEqual({ ReturnValue: true, OutRowNames: ["Row1"] });
+  });
 });
 
 // ── Object Property schemas ──────────────────────────────────────────

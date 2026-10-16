@@ -1875,3 +1875,96 @@ describe("Effect-native hooks (Phase 8)", () => {
     expect(result.ReturnValue).toBe(1);
   });
 });
+
+describe("call out-parameters", () => {
+  const objectPath = "/Game/Data/DT_Fixture.DT_Fixture";
+  const columnNames = ["IntValue", "FloatValue", "BoolValue", "StringValue"];
+  const cases = [
+    {
+      name: "out-parameter only",
+      body: { OutColumnNames: columnNames },
+      expected: { OutColumnNames: columnNames, ReturnValue: columnNames },
+    },
+    {
+      name: "ReturnValue with out-parameter",
+      body: { ReturnValue: true, OutRowNames: ["Row1", "Row2"] },
+      expected: { ReturnValue: true, OutRowNames: ["Row1", "Row2"] },
+    },
+    {
+      name: "ReturnValue only",
+      body: { ReturnValue: 5 },
+      expected: { ReturnValue: 5 },
+    },
+  ];
+
+  for (const { name, body, expected } of cases) {
+    test(`call keeps ${name}`, async () => {
+      const { client } = makeHttpClient([{ body, statusCode: 200 }]);
+      const response = await client.call({ objectPath, functionName: "GetDataTableColumnNames" });
+      expect(response).toEqual(expected);
+    });
+
+    test(`effect.call keeps ${name}`, async () => {
+      const { client } = makeHttpClient([{ body, statusCode: 200 }]);
+      const response = await runEffect(
+        client,
+        client.effect.call({ objectPath, functionName: "GetDataTableColumnNames" }),
+      );
+      expect(response).toEqual(expected);
+    });
+
+    test(`batch keeps ${name}`, async () => {
+      const { client } = makeHttpClient([
+        {
+          body: { Responses: [{ RequestId: 0, ResponseCode: 200, ResponseBody: body }] },
+          statusCode: 200,
+        },
+      ]);
+      const results = await client.batch((builder) => {
+        builder.call({ objectPath, functionName: "GetDataTableColumnNames" });
+      });
+      expect(results[0]?.body).toEqual(body);
+    });
+
+    test(`effect.batch keeps ${name}`, async () => {
+      const { client } = makeHttpClient([
+        {
+          body: { Responses: [{ RequestId: 0, ResponseCode: 200, ResponseBody: body }] },
+          statusCode: 200,
+        },
+      ]);
+      const results = await runEffect(
+        client,
+        client.effect.batch((builder) => {
+          builder.call({ objectPath, functionName: "GetDataTableColumnNames" });
+        }),
+      );
+      expect(results[0]?.body).toEqual(body);
+    });
+  }
+
+  test("callReturn decodes ReturnValue when out-parameters are present", async () => {
+    const { client } = makeHttpClient([
+      { body: { ReturnValue: true, OutRowNames: ["Row1"] }, statusCode: 200 },
+    ]);
+    const result = await client.callReturn({
+      objectPath,
+      functionName: "GetDataTableRowNames",
+      returnSchema: Schema.Boolean,
+    });
+    expect(result).toBe(true);
+  });
+
+  test("effect.callReturn decodes a lone out-parameter", async () => {
+    const { client } = makeHttpClient([{ body: { OutColumnNames: columnNames }, statusCode: 200 }]);
+    const result = await runEffect(
+      client,
+      client.effect.callReturn({
+        objectPath,
+        functionName: "GetDataTableColumnNames",
+        returnSchema: Schema.Array(Schema.String),
+      }),
+    );
+    expect(result).toEqual(columnNames);
+  });
+});
