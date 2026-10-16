@@ -124,6 +124,29 @@ describe("ObjectCallResponseSchema", () => {
     });
     expect(result.ReturnValue).toEqual({ X: 1, Y: 2, Z: 3 });
   });
+
+  test("keeps out-parameters without a ReturnValue", () => {
+    const result = decode(ObjectCallResponseSchema)({
+      OutColumnNames: ["IntValue", "FloatValue"],
+    });
+    expect(result).toEqual({ OutColumnNames: ["IntValue", "FloatValue"] });
+  });
+
+  test("keeps out-parameters beside ReturnValue", () => {
+    const result = decode(ObjectCallResponseSchema)({
+      ReturnValue: true,
+      OutRowNames: ["Row1", "Row2"],
+    });
+    expect(result).toEqual({ ReturnValue: true, OutRowNames: ["Row1", "Row2"] });
+  });
+
+  test("keeps out-parameters when excess properties are ignored", () => {
+    const result = decode(ObjectCallResponseSchema)(
+      { ReturnValue: true, OutRowNames: ["Row1"] },
+      { onExcessProperty: "ignore" },
+    );
+    expect(result).toEqual({ ReturnValue: true, OutRowNames: ["Row1"] });
+  });
 });
 
 // ── Object Property schemas ──────────────────────────────────────────
@@ -584,5 +607,43 @@ describe("ObjectThumbnailResponseSchema", () => {
     expect(decode(ObjectThumbnailResponseSchema)("base64data")).toBe("base64data");
     expect(decode(ObjectThumbnailResponseSchema)(null)).toBeNull();
     expect(decode(ObjectThumbnailResponseSchema)(42)).toBe(42);
+  });
+});
+
+// ── Response passthrough ─────────────────────────────────────────────
+
+describe("response schemas keep fields Unreal adds", () => {
+  test("describe keeps extra keys at every level", () => {
+    const input = {
+      Name: "Actor",
+      Owner: "Level",
+      Properties: [{ Name: "Counter", ContainerType: "Array" }],
+      Functions: [
+        {
+          Name: "Increment",
+          Flags: "BlueprintCallable",
+          Arguments: [{ Name: "Delta", Default: 1 }],
+        },
+      ],
+    };
+    expect(decode(ObjectDescribeResponseSchema)(input)).toEqual(input);
+  });
+
+  test("search assets keeps extra keys on response and assets", () => {
+    const input = { Assets: [{ Name: "Chair", Path: "/Game/Chair.Chair" }], Total: 1 };
+    expect(decode(SearchAssetsResponseSchema)(input)).toEqual(input);
+  });
+
+  test("info keeps extra keys on response and routes", () => {
+    const input = { HttpPort: 30010, HttpRoutes: [{ Path: "/remote/info", IsEnabled: true }] };
+    expect(decode(InfoResponseSchema)(input)).toEqual(input);
+  });
+
+  test("event and batch responses keep extra keys", () => {
+    const event = { propertyName: "Counter", propertyValue: 1, Timestamp: 5 };
+    expect(decode(ObjectEventResponseSchema)(event)).toEqual(event);
+
+    const batch = { Responses: [{ RequestId: 0, ResponseCode: 200, Extra: true }], Extra: 1 };
+    expect(decode(BatchResponseSchema)(batch)).toEqual(batch);
   });
 });

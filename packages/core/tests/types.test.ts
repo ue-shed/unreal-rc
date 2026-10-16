@@ -34,17 +34,13 @@ describe("types schemas", () => {
     ).toThrow();
   });
 
-  test("allows passthrough keys for search assets request", () => {
-    const parsed = decode(SearchAssetsRequestSchema)(
-      {
-        query: "Chair",
-        vendorExtension: "ok",
-      },
-      { onExcessProperty: "preserve" },
-    );
+  test("drops unknown keys from search assets request", () => {
+    const parsed = decode(SearchAssetsRequestSchema)({
+      query: "Chair",
+      vendorExtension: "ok",
+    });
 
-    expect(parsed.query).toBe("Chair");
-    expect((parsed as Record<string, unknown>).vendorExtension).toBe("ok");
+    expect(parsed).toEqual({ query: "Chair" });
   });
 
   test("validates batch request ids", () => {
@@ -75,10 +71,7 @@ describe("types schemas", () => {
   });
 
   test("allows passthrough fields for object call responses", () => {
-    const parsed = decode(ObjectCallResponseSchema)(
-      { ReturnValue: 1, Custom: true },
-      { onExcessProperty: "preserve" },
-    );
+    const parsed = decode(ObjectCallResponseSchema)({ ReturnValue: 1, Custom: true });
     expect(parsed.ReturnValue).toBe(1);
     expect((parsed as Record<string, unknown>).Custom).toBe(true);
   });
