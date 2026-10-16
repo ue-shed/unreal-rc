@@ -1,7 +1,7 @@
 import { highlight } from "sugar-high";
 
 const NPM_URL = "https://www.npmjs.com/package/unreal-rc";
-const GITHUB_URL = "https://github.com/peculiarnewbie/unreal-rc";
+const GITHUB_URL = "https://github.com/ue-shed/unreal-rc";
 const installCommand = "npm install unreal-rc effect";
 
 const heroSnippet = `import { UnrealRC, vector } from "unreal-rc";

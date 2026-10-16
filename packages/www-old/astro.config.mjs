@@ -13,7 +13,7 @@ export default defineConfig({
         {
           icon: "github",
           label: "GitHub",
-          href: "https://github.com/peculiarnewbie/unreal-rc"
+          href: "https://github.com/ue-shed/unreal-rc"
         }
       ],
       sidebar: [

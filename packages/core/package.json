@@ -4,12 +4,12 @@
   "description": "Typed client for Unreal Engine Remote Control over WebSocket or HTTP",
   "homepage": "https://unreal-rc.peculiarnewbie.com",
   "bugs": {
-    "url": "https://github.com/peculiarnewbie/unreal-rc/issues"
+    "url": "https://github.com/ue-shed/unreal-rc/issues"
   },
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/peculiarnewbie/unreal-rc.git",
+    "url": "git+https://github.com/ue-shed/unreal-rc.git",
     "directory": "packages/core"
   },
   "files": [
