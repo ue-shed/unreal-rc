@@ -4,11 +4,17 @@ All notable changes to `unreal-rc` are documented here.
 
 ## [Unreleased]
 
-## [0.5.5] - 2026-10-16
+## [0.6.0] - 2026-10-16
+
+### Breaking
+
+- The `effect` peer dependency is now `>=4.0.0 <5`. Effect 4 beta and release-candidate builds are no longer supported.
 
 ### Fixed
 
-- Object calls keep out-parameters (e.g. `OutRowNames`, `OutColumnNames`) beside `ReturnValue` instead of dropping them. The response schema now declares unknown keys, so this no longer depends on the `onExcessProperty: "preserve"` parse option, which stable Effect 4 no longer supports. Affects `call` and `callReturn` on both the Promise and Effect clients.
+- Object calls keep out-parameters (e.g. `OutRowNames`, `OutColumnNames`) beside `ReturnValue` instead of dropping them. Affects `call` and `callReturn` on both the Promise and Effect clients.
+- Describe, search assets, info, event, and batch responses keep fields beyond the ones the client models, at every nesting level.
+- Stable Effect 4 removed the `onExcessProperty: "preserve"` parse option the client relied on, so these fields were silently stripped on `effect >=4.0.0`. Response schemas now declare the extra keys themselves, so decoding no longer depends on that option.
 
 ## [0.5.4] - 2026-09-09
 
